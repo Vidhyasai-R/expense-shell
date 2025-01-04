@@ -4,6 +4,15 @@ LOG_FILE=$(echo $0 | cut -d "." -f1)
 TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
 LOG_FILE_NAME="$LOGS_FOLDER/$LOG_FILE-$TIMESTAMP.log"
 
+cd /var/log/expense-logs &>>$LOG_FILE_NAME
+if [ $? -ne 0 ]
+then
+    echo "expense-logs directory not setup"
+    mkdir -p /var/log/expense-logs
+else
+    echo "Already exists expense-logs directory"
+fi
+
 CHECKROOT(){
     USERID=$(id -u)
     if [ $USERID -ne 0 ]
@@ -25,15 +34,6 @@ VALIDATE(){
 
 echo "Started executing script at :: $TIMESTAMP" &>>$LOG_FILE_NAME
 CHECKROOT
-
-cd /var/log/expense-logs &>>$LOG_FILE_NAME
-if [ $? -ne 0 ]
-then
-    echo "expense-logs directory not setup"
-    mkdir -p /var/log/expense-logs
-else
-    echo "Already exists expense-logs directory"
-fi
 
 dnf install mysql-server -y &>>$LOG_FILE_NAME
 VALIDATE $? "Installing MySQL"
